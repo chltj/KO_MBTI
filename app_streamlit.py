@@ -434,27 +434,6 @@ def main():
                     st.pyplot(fig)
 
             # -------------------------
-            # 5.5) 호감도 분석 
-            # -------------------------
-            if len(participants) == 2:
-                st.markdown("---")
-                st.subheader("💘 호감도 분석 ")
-
-                # 나를 제외한 상대 이름
-                partner_name = participants[0] if participants[1] == my_name else participants[1]
-
-                crush_percent = estimate_crush_percentage(df_chat, my_name, partner_name)
-
-                if crush_percent is None:
-                    st.info("대화량이 부족해서 호감도를 계산하기 어렵습니다.")
-                else:
-                    st.markdown(
-                        f"**{partner_name} → {my_name}** 의 호감도는 "
-                        f"**약 {crush_percent}%** 정도로 추정됩니다. 😳"
-                    )
-                    st.caption("※ 실제 심리 검사 결과가 아니라, 말투 키워드 비율을 기준으로 한 단순 재미용 지표입니다.")
-
-            # -------------------------
             # 6) MBTI + 유명인 
             # -------------------------
             st.markdown("---")
@@ -527,3 +506,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
