@@ -5,7 +5,7 @@ from typing import Dict
 
 
 # -----------------------------
-# 1. 카카오톡 파싱
+# 1. 카카오톡 파싱 
 # -----------------------------
 def parse_kakao_chat(text: str, my_name: str) -> pd.DataFrame:
     """
@@ -15,21 +15,42 @@ def parse_kakao_chat(text: str, my_name: str) -> pd.DataFrame:
     lines = text.splitlines()
     records = []
 
-    # 예시 포맷:
-    # 2023. 5. 12. 오후 3:21, 고주성 : 안녕
-    pattern = re.compile(
+    # 기존 카톡 공식 내보내기 포맷
+    # 예: 2023. 5. 12. 오후 3:21, 고주성 : 안녕
+    pattern_export = re.compile(
         r"(\d{4}\. \d{1,2}\. \d{1,2}\. (?:오전|오후) \d{1,2}:\d{2}), (.*) : (.*)"
     )
 
+    # 새로운 "복붙형" 카톡 포맷
+    # 예: [유채린] [오후 8:48] 사진
+    pattern_bracket = re.compile(
+        r"^\[(?P<speaker>.*?)\]\s*\[(?P<time>.*?)\]\s*(?P<message>.*)$"
+    )
+
     for line in lines:
-        match = pattern.match(line)
-        if match:
-            dt, speaker, message = match.groups()
+        line = line.strip()
+        if not line:
+            continue
+
+        # 1) 공식 내보내기 형식 매칭
+        m1 = pattern_export.match(line)
+        if m1:
+            dt, speaker, message = m1.groups()
             records.append([dt, speaker.strip(), message.strip()])
+            continue
+
+        # 2) 복붙형 카톡 형식 매칭
+        m2 = pattern_bracket.match(line)
+        if m2:
+            speaker = m2.group("speaker").strip()
+            t = m2.group("time").strip()
+            message = m2.group("message").strip()
+            # datetime 을 일단 time 문자열만 저장 (필요시 나중에 처리 가능)
+            records.append([t, speaker, message])
+            continue
 
     df = pd.DataFrame(records, columns=["datetime", "speaker", "message"])
     return df
-
 
 # -----------------------------
 # 2. 말투 스타일 분석
